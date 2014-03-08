@@ -8,9 +8,10 @@ import java.util.Date;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract.CommonDataKinds.Event;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,13 +19,11 @@ import android.view.MotionEvent;
 import android.widget.Toast;
 import edu.dhbw.andar.ARToolkit;
 import edu.dhbw.andar.AndARActivity;
-import edu.dhbw.andar.exceptions.AndARException;
 import edu.dhbw.andobjviewer.graphics.HP;
 import edu.dhbw.andobjviewer.graphics.MiCharacter;
 import edu.dhbw.andobjviewer.graphics.Model3D;
 import edu.dhbw.andobjviewer.models.Model;
 import edu.dhbw.andobjviewer.parser.ObjParser;
-import edu.dhbw.andobjviewer.parser.ParseException;
 import edu.dhbw.andobjviewer.util.AssetsFileUtil;
 import edu.dhbw.andobjviewer.util.BaseFileUtil;
 import edu.dhbw.andopenglcam.R;
@@ -39,67 +38,35 @@ public class CustomActivity extends AndARActivity {
 	private final int MENU_SCREENSHOT = 0;
 	private final int MENU_THUNDER = 1;
 	private final int MENU_HEAL = 2;
-
-	CustomObject someObject;
-	ARToolkit artoolkit;
-	Model3D monstruo1;
-	MiCharacter monstruo2;
-	
-	HP hp;
 	
 	Menu menu;
+	
+	boolean created =  false;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		CustomRenderer renderer = new CustomRenderer();//optional, may be set to null
-		
+		Global.am=getResources().getAssets();
 		
 		super.setNonARRenderer(renderer);//or might be omited
 		try
 		{
-			artoolkit = super.getArtoolkit();
+			Global.artoolkit = super.getArtoolkit();
 
-			monstruo1 = new Model3D(getModel("monstruo1.obj"),"c2.patt");
-			artoolkit.registerARObject(monstruo1);
-			
-			Model3D selected = new Model3D(getModel("selected.obj"),"e2.patt");
-			hp = new HP(getModel("hp.obj"),"e2.patt");
-			monstruo2 = new MiCharacter(getModel("monstruo2.obj"),"e2.patt",selected);
-			artoolkit.registerARObject(monstruo2);
-			artoolkit.registerARObject(selected);
-			artoolkit.registerARObject(hp);
-			hp.model.setYpos(5f);
-
-//			someObject = new CustomObject
-//			("test", "e2.patt", 80.0, new double[]{0,0});
-//			artoolkit.registerARObject(someObject);
+			Global.monstruo1 = new MiCharacter(Global.getModel("monstruo1.obj"),"c2.patt");
+			Global.monstruo2 = new MiCharacter(Global.getModel("monstruo2.obj"),"e2.patt");
 			
 		}catch (Exception ex){
 			//handle the exception, that means: show the user what happened
 			System.out.println("");
 		}
+		
+        Thread t = new Thread(new Second(this));
+        t.start();
 	}
 	
-	Model getModel(String obj_path)
-	{
-		BaseFileUtil fileUtil = new AssetsFileUtil(getResources().getAssets());
-		fileUtil.setBaseFolder("models/");
-		Model model = null;
-		ObjParser parser = new ObjParser(fileUtil);
-		if(fileUtil != null) {
-			BufferedReader fileReader = fileUtil.getReaderFromName(obj_path);
-			if(fileReader != null) {
-				try {
-					model = parser.parse("Model", fileReader);
-					model.scale=4;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return model;
-	}
+
 
 	/**
 	 * Inform the user about exceptions that occurred in background threads.
@@ -188,21 +155,37 @@ public class CustomActivity extends AndARActivity {
 	public boolean onTouchEvent(MotionEvent event)
 	{
 		super.onTouchEvent(event);
-		if(monstruo1.isVisible() && !monstruo2.isVisible() && monstruo1.model.scale==4)
-		{
-			monstruo1.model.scale=8;
-			monstruo2.model.scale=4;
-			monstruo2.selected.model.scale=0;
-		}
-		if(monstruo2.isVisible() && !monstruo1.isVisible() && monstruo2.model.scale==4)
-		{
-			monstruo2.model.scale=8;
-			monstruo2.selected.model.scale=4;
-			monstruo1.model.scale=4;
-			hp.decrese(10);
-		}
+//		if(monstruo1.isVisible() && !monstruo2.isVisible() && monstruo1.model.scale==4)
+//		{
+//			monstruo1.model.scale=8;
+//			monstruo2.model.scale=4;
+//			monstruo2.selected.model.scale=0;
+//		}
+//		if(monstruo2.isVisible() && !monstruo1.isVisible() && monstruo2.model.scale==4)
+//		{
+//			monstruo2.model.scale=8;
+//			monstruo2.selected.model.scale=4;
+//			monstruo1.model.scale=4;
+//			hp.decrese(10);
+//		}
+		
+//		Toast.makeText(CustomActivity.this,getIPAddress(), Toast.LENGTH_SHORT ).show();
+        
+//        Global.sendToServer("probando hola hola", "172.16.171.83");
+//        Global.receiveFromServer();
+//		if(!created)
+//		{
+//			created=true;
+//		      Thread t = new Thread(new Second(this));
+//		      t.start();
+//		}
+//		
 		return true;
 	}
 	
-	
+    public String getIPAddress() {
+    	WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
+    	String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+    	return ip;
+    }
 }
