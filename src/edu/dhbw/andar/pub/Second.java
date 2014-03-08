@@ -4,6 +4,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import edu.dhbw.andopenglcam.R;
+
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,16 +30,7 @@ public class Second implements Runnable {
 //			Global.monstruo2.selected.model.setScale(0);
 //		}
 		
-        Global.sendToServer("probando hola hola", "172.16.171.83");
+        Global.sendToServer("probando hola hola");
         String str=Global.receiveFromServer();
-		if(str.equals("2"))
-		{
-			Global.monstruo1.selected.model.setScale(0);
-			Global.monstruo2.selected.model.setScale(40);
-		}else
-		{
-			Global.monstruo1.selected.model.setScale(40);
-			Global.monstruo2.selected.model.setScale(0);
-		}
 	}
 }

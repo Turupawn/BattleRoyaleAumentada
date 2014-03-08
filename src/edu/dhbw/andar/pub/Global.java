@@ -15,10 +15,14 @@ import edu.dhbw.andobjviewer.util.AssetsFileUtil;
 import edu.dhbw.andobjviewer.util.BaseFileUtil;
 
 public class Global {
+	public static String player_action = "nada";
+	
 	public static ARToolkit artoolkit;
 	public static AssetManager am;
 	public static MiCharacter monstruo1;
 	public static MiCharacter monstruo2;
+	
+	static String SERVER_IP = "172.16.171.83";
 	
 	static boolean server_lock = false;
 	
@@ -42,7 +46,7 @@ public class Global {
 		return model;
 	}
 	
-	public static void sendToServer(String mensaje,String ip)
+	public static void sendToServer(String mensaje)
 	{
 		if(server_lock==true)
 			return;
@@ -52,7 +56,7 @@ public class Global {
 			String messageStr = mensaje;
 			int server_port = 9876;
 			DatagramSocket s = new DatagramSocket();
-			InetAddress local = InetAddress.getByName(ip);
+			InetAddress local = InetAddress.getByName(SERVER_IP);
 			int msg_length = messageStr.length();
 			byte[] message = messageStr.getBytes();
 			DatagramPacket p = new DatagramPacket(message, msg_length, local,server_port);

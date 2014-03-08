@@ -1,6 +1,5 @@
 package edu.dhbw.andar.pub;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,21 +10,16 @@ import android.graphics.Bitmap.CompressFormat;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.format.Formatter;
 import android.util.Log;
+import android.util.MonthDisplayHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.Toast;
-import edu.dhbw.andar.ARToolkit;
 import edu.dhbw.andar.AndARActivity;
-import edu.dhbw.andobjviewer.graphics.HP;
 import edu.dhbw.andobjviewer.graphics.MiCharacter;
-import edu.dhbw.andobjviewer.graphics.Model3D;
-import edu.dhbw.andobjviewer.models.Model;
-import edu.dhbw.andobjviewer.parser.ObjParser;
-import edu.dhbw.andobjviewer.util.AssetsFileUtil;
-import edu.dhbw.andobjviewer.util.BaseFileUtil;
 import edu.dhbw.andopenglcam.R;
 
 /**
@@ -62,8 +56,49 @@ public class CustomActivity extends AndARActivity {
 			System.out.println("");
 		}
 		
-        Thread t = new Thread(new Second(this));
-        t.start();
+//        Thread t = new Thread(new Second(this));
+//        t.start();
+		
+		
+		
+		final Handler mHandler = new Handler();
+		
+		new Thread(new Runnable() {
+	        @Override
+	        public void run() {
+	            // TODO Auto-generated method stub
+	            while (true) {
+	                try {
+	                    Thread.sleep(10000);
+	                    mHandler.post(new Runnable() {
+
+	                        @Override
+	                        public void run() {
+	                            // TODO Auto-generated method stub
+	                            // Write your code here to update the UI.
+	                            Global.sendToServer(Global.player_action);
+	                            Global.player_action="nada";
+	                            String str=Global.receiveFromServer();
+	                            Toast.makeText(CustomActivity.this, str, Toast.LENGTH_LONG ).show();
+	                            if(str.equals("1"))
+	                            {
+	                            	Global.monstruo1.model.scale=8;
+	                            	Global.monstruo2.model.scale=4;
+	                            }else
+	                            {
+	                            	Global.monstruo1.model.scale=4;
+	                            	Global.monstruo2.model.scale=8;
+	                            }
+	                        }
+	                    });
+	                } catch (Exception e) {
+	                    // TODO: handle exception
+	                }
+	            }
+	        }
+	    }).start();
+		
+		
 	}
 	
 
@@ -180,6 +215,22 @@ public class CustomActivity extends AndARActivity {
 //		      t.start();
 //		}
 //		
+        if(event.getAction()==MotionEvent.ACTION_DOWN)
+        {
+        	Global.player_action = "touch";
+//    		Global.sendToServer("touch");
+//            String str=Global.receiveFromServer();
+//            if(str.equals("1"))
+//            {
+//            	Global.monstruo1.model.scale=8;
+//            	Global.monstruo2.model.scale=4;
+//            }else
+//            {
+//            	Global.monstruo1.model.scale=4;
+//            	Global.monstruo2.model.scale=8;
+//            }
+        }
+		
 		return true;
 	}
 	
